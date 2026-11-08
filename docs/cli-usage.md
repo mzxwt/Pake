@@ -290,7 +290,7 @@ Set a regex pattern to determine which URLs should be considered internal (opene
 
 #### [safe-domain]
 
-A simpler way to keep trusted domains and their subdomains inside the app. This is useful for workspace callbacks and enterprise SSO flows, for example Slack plus Okta. Pake compiles this list into `internal_url_regex`; if `--internal-url-regex` is also set, the explicit regex wins.
+A simpler way to keep trusted domains and their subdomains inside the app. This is useful for workspace callbacks and enterprise SSO flows, for example Slack plus Okta. Pake compiles this list into `internal_url_regex`; if `--internal-url-regex` is also set, the explicit regex wins. The list replaces the default rule that keeps the app's own domain inside, so include that domain too: with only `okta.com`, links on the app's own site would open in the browser.
 
 `--safe-domain` matches URL hosts only, not arbitrary path or query text.
 
@@ -392,7 +392,7 @@ The raw executable is copied to the current directory as `<name>-binary`. On pla
 
 #### [user-agent]
 
-Customize the browser user agent. Default is empty.
+Customize the browser user agent. When omitted, the app sends its platform default: a Safari string on macOS and Linux and a Chrome string on Windows.
 
 ```shell
 --user-agent <string>
@@ -489,17 +489,6 @@ This option adds necessary HTTP headers (`Cross-Origin-Opener-Policy: same-origi
 pake https://flutter.dev --name FlutterApp --wasm
 ```
 
-#### [enable-drag-drop]
-
-Enable native drag and drop functionality within the application. Default is `false`. When enabled, allows drag and drop operations like reordering items, file uploads, and other interactive drag behaviors that work in regular browsers.
-
-```shell
---enable-drag-drop
-
-# Example: Package an app that requires drag-drop functionality
-pake https://planka.example.com --name PlankApp --enable-drag-drop
-```
-
 #### [keep-binary]
 
 Keep the raw binary file alongside the installer. Default is `false`. When enabled, also outputs a standalone executable that can run without installation.
@@ -578,7 +567,7 @@ This is different from `--multi-instance`:
 
 When enabled, relaunching an already running app opens a new window instead of only focusing the existing one.
 
-On macOS, additional windows opened with Cmd+N join the app's native tab group. Web-auth and `window.open` popups remain separate.
+On macOS, additional windows opened with Cmd+N join the app's native tab group. `window.open` popups stay outside it. On macOS and Linux, sign-in popups other than Sign in with Apple open in the current window.
 
 This can improve popup-based authentication flows, but it cannot bypass provider policy. Some providers, especially Google, may still reject sign-in inside embedded webviews.
 
@@ -710,7 +699,7 @@ Ignore TLS certificate validation errors when loading the target URL. Useful for
 
 #### [new-window]
 
-Allow sites to open new windows, such as authentication popups, extra tabs, or branch views.
+Allow sites to open new windows, such as authentication popups, extra tabs, or branch views. Without it, a link or `window.open` call that asks for a new window opens in the current window instead.
 
 This can help sites that rely on popup auth windows, but it does not guarantee in-app sign-in. Some providers, especially Google, may block authentication inside embedded webviews regardless of this option.
 
